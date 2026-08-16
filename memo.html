@@ -74,53 +74,59 @@
 
   <ul id="memo-list"></ul>
 
+  <!-- Supabaseと通信するための公式ライブラリを読み込む -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // ページ内の要素を取得しておく（あとで何度も使うので変数に入れる）
+    // ここのURLとキーは「公開してよい」publishable keyなので、コードに直接書いてOK
+    const SUPABASE_URL = "https://owtlzmgnukwlcussxvgf.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_UBQgHlQflBr-qNNA6T233w_CG9ju1kp";
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
     const input = document.getElementById("memo-input");
     const addButton = document.getElementById("add-button");
     const list = document.getElementById("memo-list");
 
-    // ブラウザに保存されたメモを読み込む。何もなければ空の配列。
-    function loadMemos() {
-      const saved = localStorage.getItem("ideaMemos");
-      return saved ? JSON.parse(saved) : [];
+    // データベースの memos テーブルから全件取得する
+    async function loadMemos() {
+      const { data, error } = await db
+        .from("memos")
+        .select("*")
+        .order("id", { ascending: true });
+      if (error) {
+        console.error(error);
+        return [];
+      }
+      return data;
     }
 
-    // 配列をブラウザに保存する
-    function saveMemos(memos) {
-      localStorage.setItem("ideaMemos", JSON.stringify(memos));
-    }
-
-    // 配列の中身を画面上の<ul>に描き直す
-    function render(memos) {
+    // 取得したデータを画面上の<ul>に描き直す
+    async function render() {
+      const memos = await loadMemos();
       list.innerHTML = "";
-      memos.forEach((text, index) => {
+
+      memos.forEach((memo) => {
         const li = document.createElement("li");
 
         const span = document.createElement("span");
-        span.textContent = text;
+        span.textContent = memo.content;
 
         const editButton = document.createElement("button");
         editButton.textContent = "編集";
-        editButton.addEventListener("click", () => {
-          const newText = prompt("編集する内容を入力してください", text);
+        editButton.addEventListener("click", async () => {
+          const newText = prompt("編集する内容を入力してください", memo.content);
           if (newText === null) return; // キャンセルされたら何もしない
           const trimmed = newText.trim();
           if (trimmed === "") return;
 
-          const current = loadMemos();
-          current[index] = trimmed; // index番目の中身を書き換える
-          saveMemos(current);
-          render(current);
+          await db.from("memos").update({ content: trimmed }).eq("id", memo.id);
+          render();
         });
 
         const deleteButton = document.createElement("button");
         deleteButton.textContent = "削除";
-        deleteButton.addEventListener("click", () => {
-          const current = loadMemos();
-          current.splice(index, 1); // index番目を1個取り除く
-          saveMemos(current);
-          render(current);
+        deleteButton.addEventListener("click", async () => {
+          await db.from("memos").delete().eq("id", memo.id);
+          render();
         });
 
         const actions = document.createElement("div");
@@ -135,17 +141,15 @@
     }
 
     // 「追加」ボタンが押されたときの動き
-    addButton.addEventListener("click", () => {
+    addButton.addEventListener("click", async () => {
       const text = input.value.trim();
       if (text === "") return;
 
-      const memos = loadMemos();
-      memos.push(text);
-      saveMemos(memos);
-      render(memos);
+      await db.from("memos").insert({ content: text });
 
       input.value = "";
       input.focus();
+      render();
     });
 
     // Enterキーでも追加できるようにする
@@ -155,8 +159,8 @@
       }
     });
 
-    // ページを開いたときに、保存済みのメモを表示しておく
-    render(loadMemos());
+    // ページを開いたときに、データベースの内容を表示しておく
+    render();
   </script>
 
 </body>
