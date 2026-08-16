@@ -46,6 +46,11 @@
       border-radius: 6px;
       margin-bottom: 8px;
     }
+    ul#memo-list li .actions {
+      display: flex;
+      gap: 10px;
+      flex: none;
+    }
     ul#memo-list li button {
       cursor: pointer;
       border: none;
@@ -95,6 +100,20 @@
         const span = document.createElement("span");
         span.textContent = text;
 
+        const editButton = document.createElement("button");
+        editButton.textContent = "編集";
+        editButton.addEventListener("click", () => {
+          const newText = prompt("編集する内容を入力してください", text);
+          if (newText === null) return; // キャンセルされたら何もしない
+          const trimmed = newText.trim();
+          if (trimmed === "") return;
+
+          const current = loadMemos();
+          current[index] = trimmed; // index番目の中身を書き換える
+          saveMemos(current);
+          render(current);
+        });
+
         const deleteButton = document.createElement("button");
         deleteButton.textContent = "削除";
         deleteButton.addEventListener("click", () => {
@@ -104,8 +123,13 @@
           render(current);
         });
 
+        const actions = document.createElement("div");
+        actions.className = "actions";
+        actions.appendChild(editButton);
+        actions.appendChild(deleteButton);
+
         li.appendChild(span);
-        li.appendChild(deleteButton);
+        li.appendChild(actions);
         list.appendChild(li);
       });
     }
