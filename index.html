@@ -28,6 +28,28 @@
     ul {
       padding-left: 20px;
     }
+    .projects {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .projects a {
+      display: block;
+      padding: 12px 16px;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      color: #222;
+      text-decoration: none;
+    }
+    .projects a:hover {
+      border-color: #ccc;
+      background: #fafafa;
+    }
+    .projects small {
+      display: block;
+      color: #666;
+      font-weight: normal;
+    }
   </style>
 </head>
 <body>
@@ -46,6 +68,12 @@
     <li>アプリ開発</li>
     <li>YouTube / SNS運用</li>
   </ul>
+
+  <h2>作ったもの</h2>
+  <div class="projects">
+    <a href="memo.html">投稿アイデアメモ<small>SNS/YouTubeの投稿アイデアを保存・編集できるツール</small></a>
+    <a href="quote.html">今日の一言<small>外部サービスと連携して一言をもらってくるページ</small></a>
+  </div>
 
   <h2>連絡先</h2>
   <p>準備中</p>
