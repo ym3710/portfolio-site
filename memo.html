@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>投稿アイデアメモ</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 640px;
+      margin: 60px auto;
+      padding: 0 20px;
+      line-height: 1.8;
+      color: #222;
+    }
+    a { color: #666; }
+    h1 { margin-bottom: 4px; }
+    .desc { color: #666; margin-top: 0; }
+
+    .add-row {
+      display: flex;
+      gap: 8px;
+      margin: 24px 0;
+    }
+    .add-row input {
+      flex: 1;
+      padding: 8px 10px;
+      font-size: 15px;
+    }
+    .add-row button {
+      padding: 8px 16px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    ul#memo-list {
+      list-style: none;
+      padding: 0;
+    }
+    ul#memo-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    ul#memo-list li button {
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: #999;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <p><a href="index.html">← 自己紹介ページに戻る</a></p>
+
+  <h1>投稿アイデアメモ</h1>
+  <p class="desc">SNS/YouTubeの投稿アイデアをここに書き留めておく練習ページ。</p>
+
+  <div class="add-row">
+    <input type="text" id="memo-input" placeholder="投稿アイデアを入力..." />
+    <button id="add-button">追加</button>
+  </div>
+
+  <ul id="memo-list"></ul>
+
+  <script>
+    // ページ内の要素を取得しておく（あとで何度も使うので変数に入れる）
+    const input = document.getElementById("memo-input");
+    const addButton = document.getElementById("add-button");
+    const list = document.getElementById("memo-list");
+
+    // ブラウザに保存されたメモを読み込む。何もなければ空の配列。
+    function loadMemos() {
+      const saved = localStorage.getItem("ideaMemos");
+      return saved ? JSON.parse(saved) : [];
+    }
+
+    // 配列をブラウザに保存する
+    function saveMemos(memos) {
+      localStorage.setItem("ideaMemos", JSON.stringify(memos));
+    }
+
+    // 配列の中身を画面上の<ul>に描き直す
+    function render(memos) {
+      list.innerHTML = "";
+      memos.forEach((text, index) => {
+        const li = document.createElement("li");
+
+        const span = document.createElement("span");
+        span.textContent = text;
+
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "削除";
+        deleteButton.addEventListener("click", () => {
+          const current = loadMemos();
+          current.splice(index, 1); // index番目を1個取り除く
+          saveMemos(current);
+          render(current);
+        });
+
+        li.appendChild(span);
+        li.appendChild(deleteButton);
+        list.appendChild(li);
+      });
+    }
+
+    // 「追加」ボタンが押されたときの動き
+    addButton.addEventListener("click", () => {
+      const text = input.value.trim();
+      if (text === "") return;
+
+      const memos = loadMemos();
+      memos.push(text);
+      saveMemos(memos);
+      render(memos);
+
+      input.value = "";
+      input.focus();
+    });
+
+    // Enterキーでも追加できるようにする
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        addButton.click();
+      }
+    });
+
+    // ページを開いたときに、保存済みのメモを表示しておく
+    render(loadMemos());
+  </script>
+
+</body>
+</html>
