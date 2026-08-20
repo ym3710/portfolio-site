@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>学習ログ×投稿ログ</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 640px;
+      margin: 60px auto;
+      padding: 0 20px;
+      line-height: 1.8;
+      color: #222;
+    }
+    a { color: #666; }
+    h1 { margin-bottom: 4px; }
+    .desc { color: #666; margin-top: 0; }
+
+    .auth-box {
+      border: 1px solid #eee;
+      border-radius: 6px;
+      padding: 20px;
+      margin: 24px 0;
+    }
+    .auth-box input {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px 10px;
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
+    .auth-box button {
+      padding: 8px 16px;
+      font-size: 15px;
+      cursor: pointer;
+      margin-right: 8px;
+    }
+    .auth-message {
+      color: #b00;
+      font-size: 14px;
+    }
+
+    .user-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    .user-bar button {
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: #999;
+      text-decoration: underline;
+    }
+
+    .streak {
+      font-size: 15px;
+      margin-bottom: 24px;
+    }
+
+    .add-box {
+      border: 1px solid #eee;
+      border-radius: 6px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+    .add-box textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px 10px;
+      font-size: 15px;
+      font-family: inherit;
+      resize: vertical;
+      margin-bottom: 10px;
+    }
+    .add-box label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    .add-box button {
+      padding: 8px 16px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    ul#log-list {
+      list-style: none;
+      padding: 0;
+    }
+    ul#log-list li {
+      padding: 10px 12px;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    .log-date {
+      font-size: 13px;
+      color: #999;
+      display: flex;
+      justify-content: space-between;
+    }
+    .log-posted {
+      color: #2a7;
+    }
+    .log-text {
+      margin: 4px 0 0;
+      white-space: pre-wrap;
+    }
+    .log-list li button {
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: #999;
+      font-size: 13px;
+    }
+
+    #app-section { display: none; }
+  </style>
+</head>
+<body>
+
+  <p><a href="index.html">← 自己紹介ページに戻る</a></p>
+
+  <h1>学習ログ×投稿ログ</h1>
+  <p class="desc">今日学んだことと、SNSに投稿したかどうかを記録する自分用ツール。</p>
+
+  <!-- ログインしていないときに表示するエリア -->
+  <div id="auth-section" class="auth-box">
+    <input type="email" id="email-input" placeholder="メールアドレス" />
+    <input type="password" id="password-input" placeholder="パスワード（6文字以上）" />
+    <button id="signup-button">新規登録</button>
+    <button id="login-button">ログイン</button>
+    <p class="auth-message" id="auth-message"></p>
+  </div>
+
+  <!-- ログイン後に表示するエリア -->
+  <div id="app-section">
+    <div class="user-bar">
+      <span id="user-email"></span>
+      <button id="logout-button">ログアウト</button>
+    </div>
+
+    <p class="streak" id="streak-display"></p>
+
+    <div class="add-box">
+      <textarea id="learned-input" rows="3" placeholder="今日学んだことを書く..."></textarea>
+      <label>
+        <input type="checkbox" id="posted-checkbox" />
+        今日SNSに投稿した
+      </label>
+      <button id="add-button">記録する</button>
+    </div>
+
+    <ul id="log-list"></ul>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://owtlzmgnukwlcussxvgf.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_UBQgHlQflBr-qNNA6T233w_CG9ju1kp";
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const authSection = document.getElementById("auth-section");
+    const appSection = document.getElementById("app-section");
+    const emailInput = document.getElementById("email-input");
+    const passwordInput = document.getElementById("password-input");
+    const authMessage = document.getElementById("auth-message");
+    const userEmail = document.getElementById("user-email");
+    const streakDisplay = document.getElementById("streak-display");
+    const learnedInput = document.getElementById("learned-input");
+    const postedCheckbox = document.getElementById("posted-checkbox");
+    const list = document.getElementById("log-list");
+
+    // 新規登録
+    document.getElementById("signup-button").addEventListener("click", async () => {
+      const { error } = await db.auth.signUp({
+        email: emailInput.value.trim(),
+        password: passwordInput.value,
+      });
+      authMessage.textContent = error ? error.message : "登録できました。ログインしてください。";
+    });
+
+    // ログイン
+    document.getElementById("login-button").addEventListener("click", async () => {
+      const { error } = await db.auth.signInWithPassword({
+        email: emailInput.value.trim(),
+        password: passwordInput.value,
+      });
+      if (error) authMessage.textContent = error.message;
+    });
+
+    // ログアウト
+    document.getElementById("logout-button").addEventListener("click", async () => {
+      await db.auth.signOut();
+    });
+
+    // ログイン状態が変わるたびに画面を切り替える
+    db.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        authSection.style.display = "none";
+        appSection.style.display = "block";
+        userEmail.textContent = session.user.email;
+        render();
+      } else {
+        authSection.style.display = "block";
+        appSection.style.display = "none";
+      }
+    });
+
+    // 継続日数を計算する（今日から遡って連続で記録がある日数）
+    function calcStreak(logs) {
+      const dateStrings = new Set(
+        logs.map((log) => new Date(log.created_at).toDateString())
+      );
+      let streak = 0;
+      const cursor = new Date();
+      while (dateStrings.has(cursor.toDateString())) {
+        streak++;
+        cursor.setDate(cursor.getDate() - 1);
+      }
+      return streak;
+    }
+
+    async function loadLogs() {
+      const { data, error } = await db
+        .from("logs")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) {
+        console.error(error);
+        return [];
+      }
+      return data;
+    }
+
+    async function render() {
+      const logs = await loadLogs();
+
+      streakDisplay.textContent = `🔥 継続 ${calcStreak(logs)}日`;
+
+      list.innerHTML = "";
+      logs.forEach((log) => {
+        const li = document.createElement("li");
+
+        const dateRow = document.createElement("div");
+        dateRow.className = "log-date";
+
+        const dateSpan = document.createElement("span");
+        const d = new Date(log.created_at);
+        dateSpan.textContent = `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
+        if (log.posted) {
+          dateSpan.innerHTML += ' <span class="log-posted">✅ 投稿済み</span>';
+        }
+
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "削除";
+        deleteButton.addEventListener("click", async () => {
+          await db.from("logs").delete().eq("id", log.id);
+          render();
+        });
+
+        dateRow.appendChild(dateSpan);
+        dateRow.appendChild(deleteButton);
+
+        const text = document.createElement("p");
+        text.className = "log-text";
+        text.textContent = log.learned;
+
+        li.appendChild(dateRow);
+        li.appendChild(text);
+        list.appendChild(li);
+      });
+    }
+
+    // 「記録する」ボタンが押されたときの動き
+    document.getElementById("add-button").addEventListener("click", async () => {
+      const text = learnedInput.value.trim();
+      if (text === "") return;
+
+      await db.from("logs").insert({
+        learned: text,
+        posted: postedCheckbox.checked,
+      });
+
+      learnedInput.value = "";
+      postedCheckbox.checked = false;
+      render();
+    });
+  </script>
+
+</body>
+</html>
