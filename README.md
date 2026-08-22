@@ -23,13 +23,13 @@
 
 ## 甲子園パワーランキングのデータ出典
 
-`koshien-ranking.html`で使用している各校の春夏別の出場回数・優勝回数・勝利数は、以下のサイトを参照して調べた（2026年8月時点のスナップショット。サイトによって集計時点が異なるため、必ず「同じ学校は同じサイト」で統一し、春+夏=合計が一致することを検算した上で採用）。
+`koshien-ranking.html`で使用している各校の春夏別の出場回数・優勝回数・勝利数は、**バーチャル高校野球（朝日新聞社×ABCテレビ運営、大会主催者側の公式データ）**の各校ページを出典としている（2026年8月時点のスナップショット）。当初hsbb.jp/data-man.comという非公式の集計サイトを使っていたが、学校によって数字が食い違ったため、大会主催者側の公式データに統一し直した。
 
-- 大阪桐蔭: [hsbb.jp](https://hsbb.jp/school/773)
-- 智辯和歌山: [hsbb.jp](https://hsbb.jp/school/695)
-- 横浜: [hsbb.jp](https://hsbb.jp/school/383)
-- 東海大相模: [hsbb.jp](https://hsbb.jp/school/475)
-- 慶應義塾: [data-man.com](https://data-man.com/kokoyakyu/school/school.php?s_id=03140009)（hsbb.jpに該当ページが見つからなかったため）
+- 大阪桐蔭: [baseball.yahoo.co.jp/hsb/teams/20092](https://baseball.yahoo.co.jp/hsb/teams/20092/top)
+- 智辯和歌山: [baseball.yahoo.co.jp/hsb/teams/20094](https://baseball.yahoo.co.jp/hsb/teams/20094/top)
+- 横浜: [baseball.yahoo.co.jp/hsb/teams/20016](https://baseball.yahoo.co.jp/hsb/teams/20016/top)
+- 東海大相模: [baseball.yahoo.co.jp/hsb/teams/20051](https://baseball.yahoo.co.jp/hsb/teams/20051/top)
+- 慶應義塾: [baseball.yahoo.co.jp/hsb/teams/20054](https://baseball.yahoo.co.jp/hsb/teams/20054/top)
 
 合計値(出場・優勝・勝利)はデータに直接持たず、`koshien-ranking.html`側で春+夏の数値から毎回計算している（同じ値を2箇所に書くとズレの原因になるため）。
 
