@@ -50,6 +50,54 @@
     .school-pref { color: #999; font-size: 12px; display: block; }
     .score { font-weight: bold; color: #b8562e; }
     .split { color: #aaa; font-size: 11.5px; display: block; }
+
+    .mode-tabs {
+      display: flex;
+      gap: 8px;
+      margin: 24px 0 16px;
+    }
+    .mode-tabs button {
+      flex: 1;
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ddd;
+      background: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #666;
+    }
+    .mode-tabs button.active {
+      background: #222;
+      color: #fff;
+      border-color: #222;
+    }
+
+    .range-box {
+      display: none;
+      background: #f7f7f2;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+    }
+    .range-box.visible { display: block; }
+    .range-box label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13.5px;
+      color: #555;
+      margin-bottom: 8px;
+    }
+    .range-box input[type="range"] { width: 100%; }
+    .range-box .note {
+      font-size: 12px;
+      color: #999;
+      margin-top: 8px;
+    }
+    .no-data-badge {
+      font-size: 11px;
+      color: #bbb;
+    }
   </style>
 </head>
 <body>
@@ -59,9 +107,23 @@
   <h1>甲子園パワーランキング</h1>
   <p class="desc">春夏通算の甲子園実績だけで独自にスコア化した、非公式のパワーランキング(β版・<span id="school-count"></span>校)。</p>
 
-  <div class="formula">
+  <div class="formula" id="formula-box">
     スコアの計算方法
     <code>パワースコア = 優勝回数 × 10 + 出場回数 × 2 + 通算勝利数 × 1</code>
+  </div>
+
+  <div class="mode-tabs">
+    <button id="tab-all" class="active">歴代(全期間)</button>
+    <button id="tab-recent">直近10年で見る</button>
+  </div>
+
+  <div class="range-box" id="range-box">
+    <label>
+      <span><span id="range-year"></span>年 以降のデータで集計</span>
+      <span id="range-count"></span>校ぶん精密データあり
+    </label>
+    <input type="range" id="year-slider" min="2016" max="2026" value="2016" step="1" />
+    <p class="note">精密な年別データがあるパイロット5校のみ対象(他の校は今後追加予定)。優勝年は学校公式サイト・新聞記事で個別に裏付け済み。</p>
   </div>
 
   <table>
@@ -79,12 +141,23 @@
   </table>
 
   <script src="koshien-data.js"></script>
+  <script src="koshien-recent-data.js"></script>
   <script>
-    function totals(school) {
+    function lifetimeTotals(school) {
       return {
         appearances: school.spring.appearances + school.summer.appearances,
         championships: school.spring.championships + school.summer.championships,
         wins: school.spring.wins + school.summer.wins,
+      };
+    }
+
+    function recentTotals(schoolName, sinceYear) {
+      const games = (KOSHIEN_RECENT[schoolName] || []).filter((g) => g.year >= sinceYear);
+      return {
+        hasData: Object.prototype.hasOwnProperty.call(KOSHIEN_RECENT, schoolName),
+        appearances: games.length,
+        championships: games.filter((g) => g.round === "優勝").length,
+        wins: games.reduce((sum, g) => sum + g.wins, 0),
       };
     }
 
@@ -94,28 +167,112 @@
 
     document.getElementById("school-count").textContent = KOSHIEN_SCHOOLS.length;
 
-    const ranked = KOSHIEN_SCHOOLS
-      .map((school) => {
-        const t = totals(school);
-        return { ...school, total: t, score: calcScore(t) };
-      })
-      .sort((a, b) => b.score - a.score);
-
+    const tabAll = document.getElementById("tab-all");
+    const tabRecent = document.getElementById("tab-recent");
+    const rangeBox = document.getElementById("range-box");
+    const yearSlider = document.getElementById("year-slider");
+    const rangeYearLabel = document.getElementById("range-year");
+    const rangeCountLabel = document.getElementById("range-count");
+    const formulaBox = document.getElementById("formula-box");
     const tbody = document.getElementById("ranking-body");
-    ranked.forEach((school, index) => {
-      const tr = document.createElement("tr");
-      if (index === 0) tr.className = "rank-1";
 
-      tr.innerHTML = `
-        <td>${index + 1}</td>
-        <td>${school.name}<span class="school-pref">${school.pref}</span></td>
-        <td>${school.total.appearances}<span class="split">(${school.spring.appearances}/${school.summer.appearances})</span></td>
-        <td>${school.total.championships}<span class="split">(${school.spring.championships}/${school.summer.championships})</span></td>
-        <td>${school.total.wins}<span class="split">(${school.spring.wins}/${school.summer.wins})</span></td>
-        <td class="score">${school.score}</td>
-      `;
-      tbody.appendChild(tr);
+    let mode = "all"; // "all" | "recent"
+
+    function render() {
+      let rows;
+
+      if (mode === "all") {
+        rows = KOSHIEN_SCHOOLS.map((school) => {
+          const t = lifetimeTotals(school);
+          return {
+            name: school.name,
+            pref: school.pref,
+            appearances: t.appearances,
+            championships: t.championships,
+            wins: t.wins,
+            split: {
+              appearances: `${school.spring.appearances}/${school.summer.appearances}`,
+              championships: `${school.spring.championships}/${school.summer.championships}`,
+              wins: `${school.spring.wins}/${school.summer.wins}`,
+            },
+            score: calcScore(t),
+            hasData: true,
+          };
+        });
+        formulaBox.querySelector("code").textContent =
+          "パワースコア = 優勝回数 × 10 + 出場回数 × 2 + 通算勝利数 × 1";
+      } else {
+        const sinceYear = Number(yearSlider.value);
+        rangeYearLabel.textContent = sinceYear;
+        rangeCountLabel.textContent = Object.keys(KOSHIEN_RECENT).length;
+
+        rows = KOSHIEN_SCHOOLS.map((school) => {
+          const t = recentTotals(school.name, sinceYear);
+          return {
+            name: school.name,
+            pref: school.pref,
+            appearances: t.appearances,
+            championships: t.championships,
+            wins: t.wins,
+            split: null,
+            score: t.hasData ? calcScore(t) : null,
+            hasData: t.hasData,
+          };
+        });
+        formulaBox.querySelector("code").textContent =
+          `パワースコア = 優勝回数 × 10 + 出場回数 × 2 + 勝利数 × 1（${sinceYear}年以降のみで集計）`;
+      }
+
+      rows.sort((a, b) => {
+        if (a.hasData !== b.hasData) return a.hasData ? -1 : 1;
+        return (b.score ?? -1) - (a.score ?? -1);
+      });
+
+      tbody.innerHTML = "";
+      rows.forEach((row, index) => {
+        const tr = document.createElement("tr");
+        if (index === 0 && row.hasData) tr.className = "rank-1";
+
+        if (!row.hasData) {
+          tr.innerHTML = `
+            <td>-</td>
+            <td>${row.name}<span class="school-pref">${row.pref}</span></td>
+            <td colspan="3" class="no-data-badge">直近10年データ準備中</td>
+            <td>-</td>
+          `;
+        } else {
+          tr.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${row.name}<span class="school-pref">${row.pref}</span></td>
+            <td>${row.appearances}${row.split ? `<span class="split">(${row.split.appearances})</span>` : ""}</td>
+            <td>${row.championships}${row.split ? `<span class="split">(${row.split.championships})</span>` : ""}</td>
+            <td>${row.wins}${row.split ? `<span class="split">(${row.split.wins})</span>` : ""}</td>
+            <td class="score">${row.score}</td>
+          `;
+        }
+        tbody.appendChild(tr);
+      });
+    }
+
+    tabAll.addEventListener("click", () => {
+      mode = "all";
+      tabAll.classList.add("active");
+      tabRecent.classList.remove("active");
+      rangeBox.classList.remove("visible");
+      render();
     });
+
+    tabRecent.addEventListener("click", () => {
+      mode = "recent";
+      tabRecent.classList.add("active");
+      tabAll.classList.remove("active");
+      rangeBox.classList.add("visible");
+      render();
+    });
+
+    yearSlider.addEventListener("input", render);
+
+    render();
   </script>
 
 </body>
