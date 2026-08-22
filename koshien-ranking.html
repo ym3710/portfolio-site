@@ -49,6 +49,7 @@
     tr.rank-1 td { font-weight: bold; }
     .school-pref { color: #999; font-size: 12px; display: block; }
     .score { font-weight: bold; color: #b8562e; }
+    .split { color: #aaa; font-size: 11.5px; display: block; }
   </style>
 </head>
 <body>
@@ -68,9 +69,9 @@
       <tr>
         <th>順位</th>
         <th>学校</th>
-        <th>出場</th>
-        <th>優勝</th>
-        <th>勝利</th>
+        <th>出場<br />(春/夏)</th>
+        <th>優勝<br />(春/夏)</th>
+        <th>勝利<br />(春/夏)</th>
         <th>スコア</th>
       </tr>
     </thead>
@@ -79,12 +80,23 @@
 
   <script src="koshien-data.js"></script>
   <script>
-    function calcScore(school) {
-      return school.championships * 10 + school.appearances * 2 + school.wins;
+    function totals(school) {
+      return {
+        appearances: school.spring.appearances + school.summer.appearances,
+        championships: school.spring.championships + school.summer.championships,
+        wins: school.spring.wins + school.summer.wins,
+      };
     }
 
-    const ranked = [...KOSHIEN_SCHOOLS]
-      .map((school) => ({ ...school, score: calcScore(school) }))
+    function calcScore(t) {
+      return t.championships * 10 + t.appearances * 2 + t.wins;
+    }
+
+    const ranked = KOSHIEN_SCHOOLS
+      .map((school) => {
+        const t = totals(school);
+        return { ...school, total: t, score: calcScore(t) };
+      })
       .sort((a, b) => b.score - a.score);
 
     const tbody = document.getElementById("ranking-body");
@@ -95,9 +107,9 @@
       tr.innerHTML = `
         <td>${index + 1}</td>
         <td>${school.name}<span class="school-pref">${school.pref}</span></td>
-        <td>${school.appearances}</td>
-        <td>${school.championships}</td>
-        <td>${school.wins}</td>
+        <td>${school.total.appearances}<span class="split">(${school.spring.appearances}/${school.summer.appearances})</span></td>
+        <td>${school.total.championships}<span class="split">(${school.spring.championships}/${school.summer.championships})</span></td>
+        <td>${school.total.wins}<span class="split">(${school.spring.wins}/${school.summer.wins})</span></td>
         <td class="score">${school.score}</td>
       `;
       tbody.appendChild(tr);

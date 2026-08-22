@@ -23,13 +23,15 @@
 
 ## 甲子園パワーランキングのデータ出典
 
-`koshien-ranking.html`で使用している各校の出場回数・優勝回数・通算勝利数は、以下のサイトを参照して調べた（2026年8月時点）。
+`koshien-ranking.html`で使用している各校の春夏別の出場回数・優勝回数・勝利数は、以下のサイトを参照して調べた（2026年8月時点のスナップショット。サイトによって集計時点が異なるため、必ず「同じ学校は同じサイト」で統一し、春+夏=合計が一致することを検算した上で採用）。
 
-- 大阪桐蔭: [hsbb.jp](https://hsbb.jp/school/773), [ABEMA TIMES](https://times.abema.tv/articles/-/10089717)
-- 智辯和歌山: [ベースボールチャンネル](https://www.baseballchannel.jp/etc/284758/)
+- 大阪桐蔭: [hsbb.jp](https://hsbb.jp/school/773)
+- 智辯和歌山: [hsbb.jp](https://hsbb.jp/school/695)
 - 横浜: [hsbb.jp](https://hsbb.jp/school/383)
-- 東海大相模: [中日スポーツ](https://www.chunichi.co.jp/article/944548)
-- 慶應義塾: [data-man.com](https://data-man.com/kokoyakyu/school/school.php?s_id=03140009)
+- 東海大相模: [hsbb.jp](https://hsbb.jp/school/475)
+- 慶應義塾: [data-man.com](https://data-man.com/kokoyakyu/school/school.php?s_id=03140009)（hsbb.jpに該当ページが見つからなかったため）
+
+合計値(出場・優勝・勝利)はデータに直接持たず、`koshien-ranking.html`側で春+夏の数値から毎回計算している（同じ値を2箇所に書くとズレの原因になるため）。
 
 スコアの計算式: `優勝回数 × 10 + 出場回数 × 2 + 通算勝利数 × 1`（学力データは意図的に含めていない。附属校の内部進学など、公平な比較が難しいため）
 
