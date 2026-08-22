@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>まなログ - 学習と発信をひとつのログで</title>
+  <meta name="description" content="今日学んだことと、SNSに投稿したかどうかを、ひとつの場所に記録するツール。継続日数も自動で見える化。" />
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      line-height: 1.8;
+      color: #222;
+    }
+    a { color: inherit; }
+
+    .wrap {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* ---- Hero ---- */
+    .hero {
+      background: #f4f7f4;
+      padding: 64px 0 48px;
+      text-align: center;
+    }
+    .hero .badge {
+      display: inline-block;
+      font-size: 13px;
+      color: #2a7a52;
+      background: #dff0e4;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-size: 34px;
+      margin: 0 0 12px;
+    }
+    .hero .tagline {
+      color: #555;
+      font-size: 16px;
+      max-width: 34ch;
+      margin: 0 auto 28px;
+    }
+    .hero svg { display: block; margin: 0 auto 32px; max-width: 320px; width: 100%; height: auto; }
+
+    .cta-button {
+      display: inline-block;
+      background: #2a7a52;
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: bold;
+    }
+    .cta-button:hover { background: #226141; }
+    .cta-sub {
+      display: block;
+      margin-top: 10px;
+      font-size: 13px;
+      color: #888;
+    }
+
+    /* ---- Sections ---- */
+    section { padding: 48px 0; }
+    h2 {
+      font-size: 20px;
+      text-align: center;
+      margin: 0 0 32px;
+    }
+
+    .for-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+    .for-list li {
+      list-style: none;
+      background: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      padding: 12px 16px;
+      font-size: 14.5px;
+    }
+    .for-list li::before {
+      content: "✓ ";
+      color: #2a7a52;
+      font-weight: bold;
+    }
+
+    .features {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .feature {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 18px 20px;
+    }
+    .feature .icon {
+      font-size: 22px;
+      line-height: 1;
+    }
+    .feature h3 {
+      margin: 0 0 4px;
+      font-size: 15.5px;
+    }
+    .feature p {
+      margin: 0;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .quote-block {
+      border-left: 3px solid #2a7a52;
+      padding-left: 16px;
+      color: #555;
+      font-size: 14.5px;
+    }
+
+    .final-cta {
+      text-align: center;
+      background: #f4f7f4;
+    }
+
+    footer {
+      text-align: center;
+      color: #999;
+      font-size: 13px;
+      padding: 24px 0 48px;
+    }
+    footer a { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <div class="hero">
+    <div class="wrap">
+      <span class="badge">学習ログ × 投稿ログ</span>
+
+      <svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="継続日数を表す炎のアイコンと連続する記録のイメージ">
+        <rect x="40" y="70" width="240" height="18" rx="9" fill="#dff0e4" />
+        <rect x="40" y="70" width="170" height="18" rx="9" fill="#2a7a52" />
+        <circle cx="60" cy="40" r="16" fill="#2a7a52" opacity="0.15" />
+        <circle cx="60" cy="40" r="10" fill="#2a7a52" />
+        <circle cx="110" cy="40" r="16" fill="#2a7a52" opacity="0.15" />
+        <circle cx="110" cy="40" r="10" fill="#2a7a52" />
+        <circle cx="160" cy="40" r="16" fill="#2a7a52" opacity="0.15" />
+        <circle cx="160" cy="40" r="10" fill="#2a7a52" />
+        <circle cx="210" cy="40" r="16" fill="#e7e7e7" />
+        <circle cx="260" cy="40" r="16" fill="#e7e7e7" />
+        <text x="160" y="130" text-anchor="middle" font-size="15" fill="#2a7a52" font-family="sans-serif" font-weight="bold">🔥 継続 3日</text>
+      </svg>
+
+      <h1>まなログ</h1>
+      <p class="tagline">今日学んだことと、SNSに投稿したかどうかを、ひとつのログで。</p>
+
+      <a class="cta-button" href="log.html">アプリを使ってみる</a>
+      <span class="cta-sub">無料・アカウント登録だけで開始できます</span>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap">
+      <h2>こんな人向けです</h2>
+      <ul class="for-list">
+        <li>プログラミングや資格の勉強を、独学で続けている</li>
+        <li>学んだことをSNSやnoteで発信していきたい</li>
+        <li>学習アプリと投稿管理アプリを別々に使うのが面倒</li>
+        <li>継続日数を可視化して、モチベーションを保ちたい</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>できること</h2>
+      <div class="features">
+        <div class="feature">
+          <span class="icon">📝</span>
+          <div>
+            <h3>学習ログを記録</h3>
+            <p>今日学んだことを一言でも書いて残せます。後から振り返る時の資産になります。</p>
+          </div>
+        </div>
+        <div class="feature">
+          <span class="icon">📮</span>
+          <div>
+            <h3>投稿したかもワンタップで記録</h3>
+            <p>「学んだことをSNSに投稿したか」をチェックボックス1つで一緒に記録。学習と発信をセットで習慣化できます。</p>
+          </div>
+        </div>
+        <div class="feature">
+          <span class="icon">🔥</span>
+          <div>
+            <h3>継続日数を自動で表示</h3>
+            <p>記録した日数が自動でカウントされ、続けている実感が一目でわかります。</p>
+          </div>
+        </div>
+        <div class="feature">
+          <span class="icon">🔒</span>
+          <div>
+            <h3>自分のログは自分だけ</h3>
+            <p>ログイン機能付きで、記録は自分のアカウントにひもづきます。他人に見られる心配はありません。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="quote-block">
+        プログラミング未経験から独学を始めたとき、学んだことのメモと発信の管理が別々のアプリに散らばって続かなくなりました。「まなログ」は、その2つを1つの記録として残すために作ったツールです。
+      </p>
+    </div>
+  </section>
+
+  <section class="final-cta">
+    <div class="wrap">
+      <h2>今日から記録を始める</h2>
+      <a class="cta-button" href="log.html">まなログを開く</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <p><a href="index.html">制作者のプロフィールを見る</a></p>
+    </div>
+  </footer>
+
+</body>
+</html>
