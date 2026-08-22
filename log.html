@@ -89,6 +89,24 @@
       cursor: pointer;
     }
 
+    .error-message {
+      color: #b00;
+      font-size: 14px;
+      margin: 0 0 12px;
+    }
+
+    .empty-message {
+      color: #999;
+      font-size: 14px;
+      text-align: center;
+      padding: 24px 0;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
     ul#log-list {
       list-style: none;
       padding: 0;
@@ -154,9 +172,11 @@
         <input type="checkbox" id="posted-checkbox" />
         今日SNSに投稿した
       </label>
+      <p class="error-message" id="add-error"></p>
       <button id="add-button">記録する</button>
     </div>
 
+    <p class="error-message" id="list-error"></p>
     <ul id="log-list"></ul>
   </div>
 
@@ -176,6 +196,9 @@
     const learnedInput = document.getElementById("learned-input");
     const postedCheckbox = document.getElementById("posted-checkbox");
     const list = document.getElementById("log-list");
+    const addError = document.getElementById("add-error");
+    const listError = document.getElementById("list-error");
+    const addButton = document.getElementById("add-button");
 
     // 新規登録
     document.getElementById("signup-button").addEventListener("click", async () => {
@@ -233,18 +256,30 @@
         .select("*")
         .order("created_at", { ascending: false });
       if (error) {
+        listError.textContent = "記録の読み込みに失敗しました。時間をおいて再度お試しください。";
         console.error(error);
-        return [];
+        return null;
       }
+      listError.textContent = "";
       return data;
     }
 
     async function render() {
       const logs = await loadLogs();
+      if (logs === null) return;
 
       streakDisplay.textContent = `🔥 継続 ${calcStreak(logs)}日`;
 
       list.innerHTML = "";
+
+      if (logs.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "empty-message";
+        empty.textContent = "まだ記録がありません。今日学んだことを書いてみましょう。";
+        list.appendChild(empty);
+        return;
+      }
+
       logs.forEach((log) => {
         const li = document.createElement("li");
 
@@ -261,7 +296,13 @@
         const deleteButton = document.createElement("button");
         deleteButton.textContent = "削除";
         deleteButton.addEventListener("click", async () => {
-          await db.from("logs").delete().eq("id", log.id);
+          deleteButton.disabled = true;
+          const { error } = await db.from("logs").delete().eq("id", log.id);
+          if (error) {
+            listError.textContent = "削除に失敗しました。時間をおいて再度お試しください。";
+            deleteButton.disabled = false;
+            return;
+          }
           render();
         });
 
@@ -279,14 +320,26 @@
     }
 
     // 「記録する」ボタンが押されたときの動き
-    document.getElementById("add-button").addEventListener("click", async () => {
+    addButton.addEventListener("click", async () => {
       const text = learnedInput.value.trim();
-      if (text === "") return;
+      addError.textContent = "";
+      if (text === "") {
+        addError.textContent = "内容を入力してください。";
+        return;
+      }
 
-      await db.from("logs").insert({
+      addButton.disabled = true;
+      const { error } = await db.from("logs").insert({
         learned: text,
         posted: postedCheckbox.checked,
       });
+      addButton.disabled = false;
+
+      if (error) {
+        addError.textContent = "記録に失敗しました。時間をおいて再度お試しください。";
+        console.error(error);
+        return;
+      }
 
       learnedInput.value = "";
       postedCheckbox.checked = false;
