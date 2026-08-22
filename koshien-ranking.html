@@ -57,7 +57,7 @@
   <p><a href="index.html">← 自己紹介ページに戻る</a></p>
 
   <h1>甲子園パワーランキング</h1>
-  <p class="desc">春夏通算の甲子園実績だけで独自にスコア化した、非公式のパワーランキング(β版・5校)。</p>
+  <p class="desc">春夏通算の甲子園実績だけで独自にスコア化した、非公式のパワーランキング(β版・<span id="school-count"></span>校)。</p>
 
   <div class="formula">
     スコアの計算方法
@@ -91,6 +91,8 @@
     function calcScore(t) {
       return t.championships * 10 + t.appearances * 2 + t.wins;
     }
+
+    document.getElementById("school-count").textContent = KOSHIEN_SCHOOLS.length;
 
     const ranked = KOSHIEN_SCHOOLS
       .map((school) => {

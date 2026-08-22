@@ -30,6 +30,17 @@
 - 横浜: [baseball.yahoo.co.jp/hsb/teams/20016](https://baseball.yahoo.co.jp/hsb/teams/20016/top)
 - 東海大相模: [baseball.yahoo.co.jp/hsb/teams/20051](https://baseball.yahoo.co.jp/hsb/teams/20051/top)
 - 慶應義塾: [baseball.yahoo.co.jp/hsb/teams/20054](https://baseball.yahoo.co.jp/hsb/teams/20054/top)
+- 中京大中京: [baseball.yahoo.co.jp/hsb/teams/20025](https://baseball.yahoo.co.jp/hsb/teams/20025/top)
+- 東邦: [baseball.yahoo.co.jp/hsb/teams/20056](https://baseball.yahoo.co.jp/hsb/teams/20056/top)
+- 龍谷大平安: [baseball.yahoo.co.jp/hsb/teams/20193](https://baseball.yahoo.co.jp/hsb/teams/20193/top)
+- 仙台育英: [baseball.yahoo.co.jp/hsb/teams/20147](https://baseball.yahoo.co.jp/hsb/teams/20147/top)
+- 履正社: [baseball.yahoo.co.jp/hsb/teams/20119](https://baseball.yahoo.co.jp/hsb/teams/20119/top)
+- 広陵: [baseball.yahoo.co.jp/hsb/teams/20170](https://baseball.yahoo.co.jp/hsb/teams/20170/top)
+- 明徳義塾: [baseball.yahoo.co.jp/hsb/teams/20041](https://baseball.yahoo.co.jp/hsb/teams/20041/top)
+- 帝京: [baseball.yahoo.co.jp/hsb/teams/20145](https://baseball.yahoo.co.jp/hsb/teams/20145/top)
+- 日大三: [baseball.yahoo.co.jp/hsb/teams/20014](https://baseball.yahoo.co.jp/hsb/teams/20014/top)
+
+PL学園（大阪）は歴史的な強豪だが、現在は野球部が実質的に活動休止中で、上記ソースに該当ページが見当たらなかったため今回は見送った。
 
 合計値(出場・優勝・勝利)はデータに直接持たず、`koshien-ranking.html`側で春+夏の数値から毎回計算している（同じ値を2箇所に書くとズレの原因になるため）。
 
